@@ -28,15 +28,19 @@ regd_users.post("/login", (req,res) => {
     const username = req.body.username;
     const password = req.body.password;
 
+    // Check if username or password is missing
     if (!username || ! password) {
         return res.status(480).json({message: "Error: invalid credentials"});
     }
 
+    // Authenticate user
     if (authenticatedUser(username, password)) {
+        // Generate JWT access token
         let accessToken = jwt.sign({
             data: password
         }, 'access', { expiresIn: 60 * 60});
 
+        // Store access token and username in session
         req.session.authorization = {
             accessToken, username
         };
@@ -48,8 +52,28 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const number = req.params.isbn;
+    const username = req.body.username;
+    const review = req.body.review;
+
+    if (books[number]) {
+        let bookReviews = books[number].reviews;
+        for (note in bookReviews ) {
+            if (note.user === username) {
+                // user review has been found
+                note.message = review;
+                return res.status(200).json({message: "Successfully updated review for book " +
+                                             number.toString() + "and user" + username});
+            }
+        }
+        // user review has not been found
+        const newReview = {"user": username, "message":review};
+        bookReviews[bookReviews.lenght + 1] = newReview;
+        return res.status(200).json({message: "Successfully add a new review for book " +
+                                     number.toString() + "and user" + username});
+    } else {
+        return res.status(410).json({message: "Error: No book found for given isbn"});
+    }
 });
 
 module.exports.authenticated = regd_users;
