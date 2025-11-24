@@ -68,7 +68,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
         }
         // user review has not been found
         const newReview = {"user": username, "message":review};
-        bookReviews[bookReviews.length + 1] = newReview;
+        bookReviews[Object.keys(bookReviews).length + 1] = newReview;
         return res.status(200).json({message: "Successfully add a new review for book " +
                                      number.toString() + "and user" + username});
     } else {
@@ -91,10 +91,11 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
             }
         }
         // shift all indexes after note
-        for (let indiex in bookReviews) {
+        for (let index in bookReviews) {
             if (index > note) {
-                // user review has been found
-                index = index - 1;
+                currentReview = bookReviews[index];
+                delete bookReviews[index];
+                bookReviews[index - 1] = currentReview
             }
         }
         return res.status(200).json({message: "Successfully deleted user review for book " +

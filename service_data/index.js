@@ -24,7 +24,7 @@ app.use("/customer/auth/*", function auth(req, res, next){
             }
         });
     } else {
-        return res.status.apply(402).json({ message: "User not logged in"});
+        return res.status.apply(407).json({ message: "User not logged in"});
     }
 });
  
